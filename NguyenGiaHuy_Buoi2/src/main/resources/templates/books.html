@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách sách</title>
+</head>
+<body>
+
+
+<h2>Danh sách sách</h2>
+<a th:href="@{/books/add}">Thêm sách mới</a>
+<br><br>
+<table border="1" cellpadding="10">
+    <tr>
+        <th>ID</th>
+        <th>Tiêu đề</th>
+        <th>Tác giả</th>
+        <th>Hành động</th>
+    </tr>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.id}"></td>
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+        <td>
+            <a th:href="@{/books/edit/{id}(id=${book.id})}">Sửa</a> |
+            <a th:href="@{/books/delete/{id}(id=${book.id})}" onclick="return confirm('Bạn có chắc muốn xóa?');">Xóa</a>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
