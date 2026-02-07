@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý danh mục</title>
+</head>
+<body>
+<div layout:fragment="content" class="container body-content">
+    <h2>Danh sách danh mục</h2>
+    <form th:action="@{${editMode} ? '/categories/edit' : '/categories/add'}" th:object="${category}" method="post" class="mb-4">
+        <input type="hidden" th:field="*{id}"/>
+        <div class="form-group mb-2">
+            <label>Tên danh mục</label>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="Nhập tên danh mục"/>
+            <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+        <button type="submit" class="btn btn-light" data-mdb-ripple-init data-mdb-ripple-color="dark" th:text="${editMode} ? 'Cập nhật' : 'Thêm mới'"></button>
+        <a th:if="${editMode}" th:href="@{/categories}" class="btn btn-dark" data-mdb-ripple-init>Hủy</a>
+    </form>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Tên danh mục</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${categories}">
+            <td th:text="${cat.id}"></td>
+            <td th:text="${cat.name}"></td>
+            <td>
+                <a th:href="@{'/categories/edit/' + ${cat.id}}" class="btn btn-light btn-sm" data-mdb-ripple-init data-mdb-ripple-color="dark">Sửa</a>
+                <a th:href="@{'/categories/delete/' + ${cat.id}}" class="btn btn-dark btn-sm" data-mdb-ripple-init onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

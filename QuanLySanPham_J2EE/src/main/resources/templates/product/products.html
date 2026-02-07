@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+<head>
+    <title>Danh sách sản phẩm</title>
+</head>
+<body>
+<div layout:fragment="content" class="container body-content">
+        <a th:href="@{/products/create}" class="btn btn-primary mb-3">Create New Product</a>
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light">
+                <tr>
+                      <th>#</th>
+                      <th>Name</th>
+                      <th>Price</th>
+                      <th>Category Name</th>
+                      <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product : ${listProduct}">
+                    <td th:text="${product.id}"></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img th:src="@{'/images/' + ${product.image}}" th:if="${product.image != null}" alt="Product Image" style="width: 45px; height: 45px" class="rounded-circle me-2"/>
+                            <div>
+                                <p class="fw-bold mb-1" th:text="${product.name}"></p>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></td>
+                    <td th:text="${product.category != null ? product.category.name : ''}"></td>
+                    <td>
+                        <a th:href="@{'/products/edit/' + ${product.id}}" class="btn btn-light btn-sm btn-rounded" data-mdb-ripple-init data-mdb-ripple-color="dark">Edit</a>
+                        <a th:href="@{'/products/delete/' + ${product.id}}" class="btn btn-dark btn-sm btn-rounded" data-mdb-ripple-init>Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</div>
+</body>
+</html>
