@@ -1,40 +1,48 @@
 package com.example.quanlysanpham_j2ee.service;
 
 import com.example.quanlysanpham_j2ee.model.Category;
+import com.example.quanlysanpham_j2ee.model.Product;
+import com.example.quanlysanpham_j2ee.repository.CategoryRepository;
+import com.example.quanlysanpham_j2ee.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.*;
+
+import java.util.List;
 
 @Service
 public class CategoryService {
-    private List<Category> categories = new ArrayList<>();
 
-    public CategoryService() {
-        categories.add(new Category(1, "Điện thoại"));
-        categories.add(new Category(2, "Laptop"));
-    }
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public List<Category> getAll() {
-        return categories;
+        return categoryRepository.findAll();
     }
 
     public Category get(int id) {
-        return categories.stream().filter(c -> c.getId() == id).findFirst().orElse(null);
+        return categoryRepository.findById(id).orElse(null);
     }
 
     public void add(Category newCategory) {
-        int maxId = categories.stream().mapToInt(Category::getId).max().orElse(0);
-        newCategory.setId(maxId + 1);
-        categories.add(newCategory);
+        categoryRepository.save(newCategory);
     }
 
     public void update(Category editCategory) {
-        Category find = get(editCategory.getId());
-        if (find != null) {
-            find.setName(editCategory.getName());
+        if (categoryRepository.existsById(editCategory.getId())) {
+            categoryRepository.save(editCategory);
         }
     }
 
     public void delete(int id) {
-        categories.removeIf(c -> c.getId() == id);
+        // Set category = null cho tất cả sản phẩm thuộc danh mục này
+        List<Product> products = productRepository.findByCategoryId(id);
+        for (Product p : products) {
+            p.setCategory(null);
+        }
+        productRepository.saveAll(products);
+        categoryRepository.deleteById(id);
     }
 }

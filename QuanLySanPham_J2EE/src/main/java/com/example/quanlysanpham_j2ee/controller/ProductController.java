@@ -67,11 +67,21 @@ public class ProductController {
             model.addAttribute("categories", categoryService.getAll());
             return "product/edit";
         }
-        if (editProduct != null && !imageProduct.isEmpty()) {
+        // Giữ ảnh cũ nếu không upload ảnh mới
+        Product existing = productService.get(editProduct.getId());
+        if (imageProduct != null && !imageProduct.isEmpty()) {
             productService.updateImage(editProduct, imageProduct);
+        } else if (existing != null) {
+            editProduct.setImage(existing.getImage());
         }
         editProduct.setCategory(categoryService.get(categoryId));
         productService.update(editProduct);
+        return "redirect:/products";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String Delete(@PathVariable int id) {
+        productService.delete(id);
         return "redirect:/products";
     }
 }
