@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{_layout}">
 <head>
     <title>Danh sách sản phẩm</title>
 </head>
 <body>
-<div layout:fragment="content" class="container body-content">
+<div layout:fragment="content" class="container body-content mt-4">
+
+    <!-- ===== ADMIN: hiển thị dạng bảng + nút thêm/sửa/xóa ===== -->
+    <div sec:authorize="hasRole('ADMIN')">
         <a th:href="@{/products/create}" class="btn btn-primary mb-3">Create New Product</a>
         <table class="table align-middle mb-0 bg-white">
             <thead class="bg-light">
                 <tr>
-                      <th>#</th>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Category Name</th>
-                      <th>Actions</th>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Category Name</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,10 +27,9 @@
                     <td th:text="${product.id}"></td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img th:src="@{'/images/' + ${product.image}}" th:if="${product.image != null}" alt="Product Image" style="width: 45px; height: 45px" class="rounded-circle me-2"/>
-                            <div>
-                                <p class="fw-bold mb-1" th:text="${product.name}"></p>
-                            </div>
+                            <img th:src="@{'/images/' + ${product.image}}" th:if="${product.image != null}"
+                                 alt="Product Image" style="width: 45px; height: 45px" class="rounded-circle me-2"/>
+                            <p class="fw-bold mb-0" th:text="${product.name}"></p>
                         </div>
                     </td>
                     <td th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></td>
@@ -36,6 +41,47 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- ===== USER: hiển thị dạng card ===== -->
+    <div sec:authorize="hasRole('USER')">
+        <h4 class="mb-4">Danh sách sản phẩm</h4>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            <div class="col" th:each="product : ${listProduct}">
+                <div class="card h-100 shadow-sm">
+                    <!-- Ảnh sản phẩm -->
+                    <img th:if="${product.image != null and !product.image.isEmpty()}"
+                         th:src="@{'/images/' + ${product.image}}"
+                         class="card-img-top"
+                         style="height: 200px; object-fit: cover;"
+                         th:alt="${product.name}"/>
+                    <img th:unless="${product.image != null and !product.image.isEmpty()}"
+                         src="https://mdbcdn.b-cdn.net/img/new/standard/city/062.webp"
+                         class="card-img-top"
+                         style="height: 200px; object-fit: cover;"
+                         alt="No image"/>
+
+                    <!-- Tên sản phẩm -->
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${product.name}"></h5>
+                    </div>
+
+                    <!-- Thông tin chi tiết -->
+                    <ul class="list-group list-group-light list-group-small">
+                        <li class="list-group-item px-4">
+                            <i class="fas fa-tag me-1 text-primary"></i>
+                            <span th:text="${product.category != null ? product.category.name : 'Chưa phân loại'}"></span>
+                        </li>
+                        <li class="list-group-item px-4">
+                            <i class="fas fa-dollar-sign me-1 text-success"></i>
+                            <strong th:text="${#numbers.formatInteger(product.price, 0, 'COMMA') + ' VNĐ'}"></strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
