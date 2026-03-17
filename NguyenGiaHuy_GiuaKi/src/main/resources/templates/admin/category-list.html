@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Manage Categories</h2>
+        <a class="btn btn-primary" th:href="@{/admin/categories/create}">Create Category</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.name}">Name</td>
+            <td>
+                <a class="btn btn-sm btn-outline-secondary" th:href="@{/admin/categories/edit/{id}(id=${category.id})}">Edit</a>
+                <form th:action="@{/admin/categories/delete/{id}(id=${category.id})}" method="post" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <h2 class="mb-3">My Courses</h2>
+    <div class="row g-3">
+        <div class="col-md-4" th:each="enrollment : ${enrollments}">
+            <div class="card h-100">
+                <img class="card-img-top" th:src="${enrollment.course.image}" alt="Course image">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${enrollment.course.name}">Course Name</h5>
+                    <p class="card-text"><strong>Credits:</strong> <span th:text="${enrollment.course.credits}">3</span></p>
+                    <p class="card-text"><strong>Lecturer:</strong> <span th:text="${enrollment.course.lecturer}">Lecturer</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

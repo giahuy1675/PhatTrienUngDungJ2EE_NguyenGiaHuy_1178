@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content" class="card p-4" style="max-width: 520px;">
+    <h2 class="mb-3" th:text="${course.id == null ? 'Create Course' : 'Edit Course'}">Course Form</h2>
+    <form th:action="${course.id == null ? '/admin/courses/create' : '/admin/courses/edit/' + course.id}" method="post" th:object="${course}" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input class="form-control" type="text" th:field="*{name}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image</label>
+            <input class="form-control" type="file" name="imageFile" accept="image/*">
+            <div class="form-text" th:if="${course.image}">Current: <span th:text="${course.image}"></span></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Credits</label>
+            <input class="form-control" type="number" th:field="*{credits}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Lecturer</label>
+            <input class="form-control" type="text" th:field="*{lecturer}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="categoryId" required>
+                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                        th:selected="${course.category != null and course.category.id == cat.id}"></option>
+            </select>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+</div>
+</body>
+</html>

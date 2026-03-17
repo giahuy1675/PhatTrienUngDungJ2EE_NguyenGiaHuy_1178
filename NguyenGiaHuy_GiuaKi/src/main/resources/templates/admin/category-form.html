@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content" class="card p-4" style="max-width: 520px;">
+    <h2 class="mb-3" th:text="${category.id == null ? 'Create Category' : 'Edit Category'}">Category Form</h2>
+    <form th:action="${category.id == null ? '/admin/categories/create' : '/admin/categories/edit/' + category.id}" method="post" th:object="${category}">
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input class="form-control" type="text" th:field="*{name}" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::content})}">
+<body>
+<div th:fragment="content">
+    <div class="row g-3">
+        <div class="col-md-4" th:each="course : ${coursePage.content}">
+            <div class="card h-100">
+                <img class="card-img-top" th:src="${course.image}" alt="Course image">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${course.name}">Course Name</h5>
+                    <p class="card-text"><strong>Credits:</strong> <span th:text="${course.credits}">3</span></p>
+                    <p class="card-text"><strong>Lecturer:</strong> <span th:text="${course.lecturer}">Lecturer</span></p>
+                    <form sec:authorize="hasRole('STUDENT')" th:action="@{/enroll/{id}(id=${course.id})}" method="post">
+                        <button class="btn btn-success" type="submit">Enroll</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center gap-3 my-4">
+        <a class="btn btn-outline-primary" th:if="${coursePage.hasPrevious()}" th:href="@{/home(page=${coursePage.number-1}, keyword=${keyword})}">Previous</a>
+        <span>Page <span th:text="${coursePage.number + 1}">1</span> / <span th:text="${coursePage.totalPages}">1</span></span>
+        <a class="btn btn-outline-primary" th:if="${coursePage.hasNext()}" th:href="@{/home(page=${coursePage.number+1}, keyword=${keyword})}">Next</a>
+    </div>
+</div>
+</body>
+</html>
