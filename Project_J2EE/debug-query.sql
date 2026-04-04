@@ -1,4 +1,4 @@
--- Xem FULL variants JSON
+ 
 SELECT variants 
 FROM products 
 WHERE id = 5 
