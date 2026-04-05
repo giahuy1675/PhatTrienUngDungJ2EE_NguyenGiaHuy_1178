@@ -5,7 +5,7 @@ import userService from '../services/userService';
 import orderService from '../services/orderService';
 import Breadcrumb from '../components/Breadcrumb';
 import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import { Avatar, Button, Col, Descriptions, Divider, Drawer, List, Row, Space, Statistic, Tag } from 'antd';
+import { Avatar, Button, Col, Descriptions, Divider, Drawer, List, Row, Space, Statistic, Tag, Timeline } from 'antd';
 function ProfilePage() {
   const { user: authUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -91,6 +91,37 @@ function ProfilePage() {
       <div className="text-gray-800">{content}</div>
     </div>
   );
+
+  const orderStatusSteps = [
+    { key: 'PENDING', label: 'Chờ xác nhận' },
+    { key: 'CONFIRMED', label: 'Đã xác nhận' },
+    { key: 'PROCESSING', label: 'Đang xử lý' },
+    { key: 'SHIPPING', label: 'Đang giao' },
+    { key: 'DELIVERED', label: 'Đã giao' },
+  ];
+
+  const getCurrentOrderStep = (status) => {
+    if (status === 'CANCELLED') return 0;
+    const index = orderStatusSteps.findIndex((step) => step.key === status);
+    return index >= 0 ? index : 0;
+  };
+
+  const getOrderTimelineItems = (order) => {
+    if (!order) return [];
+
+    if (order.status === 'CANCELLED') {
+      return [
+        { children: 'Chờ xác nhận', color: 'blue' },
+        { children: 'Đã hủy', color: 'red' },
+      ];
+    }
+
+    const currentStep = getCurrentOrderStep(order.status);
+    return orderStatusSteps.map((step, index) => ({
+      children: step.label,
+      color: index <= currentStep ? 'blue' : 'gray',
+    }));
+  };
 
   if (loading) {
     return (
@@ -540,6 +571,16 @@ function ProfilePage() {
                     />
                   </Col>
                 </Row>
+
+                <Divider />
+
+                <p className="font-semibold mb-3">Tiến trình đơn hàng</p>
+                <div className="mb-6 bg-slate-50 border border-slate-200 rounded-lg p-4">
+                  <Timeline
+                    mode="alternate"
+                    items={getOrderTimelineItems(selectedOrder)}
+                  />
+                </div>
 
                 <Divider />
 

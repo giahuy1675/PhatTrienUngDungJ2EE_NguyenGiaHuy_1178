@@ -41,7 +41,7 @@ function Navbar() {
     if (currentUser) {
       setUser(currentUser);
     }
-    
+
     // Fetch categories và brands
     const fetchData = async () => {
       try {
@@ -55,10 +55,10 @@ function Navbar() {
         console.error('Error fetching navigation data:', error);
       }
     };
-    
+
     fetchData();
   }, [location.pathname]);
-  
+
   // Tạo navigation động từ categories và brands
   const navigation = {
     categories: [
@@ -68,10 +68,10 @@ function Navbar() {
         featured: categories.slice(0, 2).map((cat, index) => ({
           name: cat.name,
           href: `/products?category=${encodeURIComponent(cat.name)}`,
-          imageSrc: cat.imageUrl && !cat.imageUrl.startsWith('/images/') 
-            ? cat.imageUrl 
-            : index === 0 
-              ? 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80' 
+          imageSrc: cat.imageUrl && !cat.imageUrl.startsWith('/images/')
+            ? cat.imageUrl
+            : index === 0
+              ? 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'
               : 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80',
           imageAlt: cat.name,
         })),
@@ -174,8 +174,8 @@ function Navbar() {
                             <li key={item.name} className="flow-root">
                               <Link to={item.href} onClick={() => setOpen(false)} className="-m-2 flex items-center gap-2 p-2 text-gray-500">
                                 {section.id === 'brands' && item.logo && (
-                                  <img 
-                                    src={item.logo} 
+                                  <img
+                                    src={item.logo}
                                     alt={item.name}
                                     className="h-4 w-auto object-contain"
                                     onError={(e) => { e.target.style.display = 'none'; }}

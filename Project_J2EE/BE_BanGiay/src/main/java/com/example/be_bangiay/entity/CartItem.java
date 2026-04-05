@@ -38,13 +38,13 @@ public class CartItem {
     @Max(value = 999, message = "Số lượng tối đa 999")
     private Integer quantity;
     
-    @Column(length = 50)
+    @Column(name = "selected_size", length = 50)
     private String selectedSize;
     
-    @Column(length = 50)
+    @Column(name = "selected_color", length = 50)
     private String selectedColor;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "selected_image", columnDefinition = "LONGTEXT")
     private String selectedImage;
     
     @CreationTimestamp

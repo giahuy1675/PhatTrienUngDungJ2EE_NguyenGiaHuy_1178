@@ -41,12 +41,12 @@ public class OrderDetail {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal subtotal;
     
-    @Column(length = 50)
+    @Column(name = "selected_size", length = 50)
     private String selectedSize;
     
-    @Column(length = 50)
+    @Column(name = "selected_color", length = 50)
     private String selectedColor;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "selected_image", columnDefinition = "LONGTEXT")
     private String selectedImage;
 }

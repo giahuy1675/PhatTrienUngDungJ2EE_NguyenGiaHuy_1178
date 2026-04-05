@@ -47,15 +47,20 @@ const cartService = {
       }
     });
     
-    const response = await api.post(`/cart/${userId}`, payload);
-    
-    // Debug response
-    console.log('📥 API Response:', {
-      ...response.data,
-      selectedImage: response.data.selectedImage ? response.data.selectedImage.substring(0, 50) + '...' : null
-    });
-    
-    return response.data;
+    try {
+      const response = await api.post(`/cart/${userId}`, payload);
+      
+      // Debug response
+      console.log('📥 API Response:', {
+        ...response.data,
+        selectedImage: response.data.selectedImage ? response.data.selectedImage.substring(0, 50) + '...' : null
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Cart add error response:', error.response ? error.response.data : error);
+      throw error;
+    }
   },
 
   // Cập nhật số lượng sản phẩm trong giỏ hàng

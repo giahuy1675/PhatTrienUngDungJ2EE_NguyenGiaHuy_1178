@@ -36,7 +36,8 @@ public class ProductReviewController {
         User user = userService.getUserByEmail(email);
 
         boolean canReview = productReviewService.canUserReview(productId, user.getId());
-        return ResponseEntity.ok(new CanReviewResponse(canReview));
+        List<Long> unreviewedOrderIds = productReviewService.getUnreviewedOrderIds(productId, user.getId());
+        return ResponseEntity.ok(new CanReviewResponse(canReview, unreviewedOrderIds));
     }
 
     @PostMapping

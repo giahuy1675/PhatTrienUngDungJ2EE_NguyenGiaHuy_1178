@@ -36,4 +36,21 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
     boolean existsDeliveredOrderForProduct(@Param("userId") Long userId,
                                            @Param("productId") Long productId,
                                            @Param("status") Order.OrderStatus status);
+
+    @Query("SELECT od.order.id FROM OrderDetail od " +
+           "WHERE od.order.user.id = :userId " +
+           "AND od.product.id = :productId " +
+           "AND od.order.status = :status " +
+           "AND od.order.id NOT IN (" +
+           "  SELECT pr.order.id FROM ProductReview pr " +
+           "  WHERE pr.user.id = :userId " +
+           "  AND pr.product.id = :productId " +
+           "  AND pr.parentReview IS NULL " +
+           "  AND pr.isActive = true " +
+           "  AND pr.order IS NOT NULL" +
+           ") " +
+           "ORDER BY od.order.createdAt DESC")
+    List<Long> findUnreviewedDeliveredOrderIds(@Param("userId") Long userId,
+                                               @Param("productId") Long productId,
+                                               @Param("status") Order.OrderStatus status);
 }

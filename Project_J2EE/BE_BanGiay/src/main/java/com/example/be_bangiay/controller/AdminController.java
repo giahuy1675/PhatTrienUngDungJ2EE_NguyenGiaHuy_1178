@@ -1,11 +1,14 @@
 package com.example.be_bangiay.controller;
 
+import com.example.be_bangiay.dto.AdminProductRequest;
 import com.example.be_bangiay.dto.AdminReviewResponse;
 import com.example.be_bangiay.dto.ProductReviewResponse;
+import com.example.be_bangiay.entity.Brand;
 import com.example.be_bangiay.entity.Category;
 import com.example.be_bangiay.entity.Product;
 import com.example.be_bangiay.entity.Order;
 import com.example.be_bangiay.entity.User;
+import com.example.be_bangiay.repository.BrandRepository;
 import com.example.be_bangiay.repository.CategoryRepository;
 import com.example.be_bangiay.repository.OrderRepository;
 import com.example.be_bangiay.repository.ProductRepository;
@@ -33,6 +36,7 @@ import java.util.Map;
 public class AdminController {
     
     private final ProductRepository productRepository;
+    private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
@@ -88,12 +92,37 @@ public class AdminController {
     }
     
     @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<Product> createProduct(@RequestBody AdminProductRequest request) {
         try {
-            System.out.println("Creating product: " + product.getName());
+            Product product = new Product();
+            product.setName(request.getName());
+            product.setDescription(request.getDescription());
+            product.setPrice(request.getPrice());
+            product.setOriginalPrice(request.getOriginalPrice());
+            product.setDiscountPercentage(request.getDiscountPercentage());
+            product.setDiscountStartAt(request.getDiscountStartAt());
+            product.setDiscountEndAt(request.getDiscountEndAt());
+            product.setStockQuantity(request.getStockQuantity());
+            product.setBrand(resolveBrand(request));
+            product.setColor(request.getColor());
+            product.setImage(request.getImage());
+            product.setImages(request.getImages());
+            product.setColors(request.getColors());
+            product.setSizes(request.getSizes());
+            product.setVariants(request.getVariants());
+            product.setSpecs(request.getSpecs());
+            product.setRating(request.getRating());
+            product.setReviews(request.getReviews());
+            product.setTag(request.getTag());
+            product.setIsFeatured(request.getIsFeatured());
+            product.setIsActive(request.getIsActive());
+            product.setCategory(resolveCategory(request));
+            
             applyDiscountPricing(product);
             Product saved = productRepository.save(product);
             return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
             System.err.println("Error creating product: " + e.getMessage());
             e.printStackTrace();
@@ -102,32 +131,35 @@ public class AdminController {
     }
     
     @PutMapping("/products/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody AdminProductRequest request) {
         return productRepository.findById(id)
             .map(existing -> {
-                existing.setName(product.getName());
-                existing.setDescription(product.getDescription());
-                existing.setOriginalPrice(product.getOriginalPrice());
-                existing.setDiscountPercentage(product.getDiscountPercentage());
-                existing.setDiscountStartAt(product.getDiscountStartAt());
-                existing.setDiscountEndAt(product.getDiscountEndAt());
-                existing.setStockQuantity(product.getStockQuantity());
-                existing.setBrand(product.getBrand());
-                existing.setColor(product.getColor());
-                existing.setImage(product.getImage());
-                existing.setImages(product.getImages());
-                existing.setColors(product.getColors());
-                existing.setSizes(product.getSizes());
-                existing.setVariants(product.getVariants());
-                existing.setSpecs(product.getSpecs());
-                existing.setRating(product.getRating());
-                existing.setReviews(product.getReviews());
-                existing.setTag(product.getTag());
-                existing.setIsFeatured(product.getIsFeatured());
-                existing.setIsActive(product.getIsActive());
-                if (product.getCategory() != null) {
-                    existing.setCategory(product.getCategory());
+                existing.setName(request.getName());
+                existing.setDescription(request.getDescription());
+                existing.setPrice(request.getPrice());
+                existing.setOriginalPrice(request.getOriginalPrice());
+                existing.setDiscountPercentage(request.getDiscountPercentage());
+                existing.setDiscountStartAt(request.getDiscountStartAt());
+                existing.setDiscountEndAt(request.getDiscountEndAt());
+                existing.setStockQuantity(request.getStockQuantity());
+                existing.setBrand(resolveBrand(request));
+                existing.setColor(request.getColor());
+                existing.setImage(request.getImage());
+                existing.setImages(request.getImages());
+                existing.setColors(request.getColors());
+                existing.setSizes(request.getSizes());
+                existing.setVariants(request.getVariants());
+                existing.setSpecs(request.getSpecs());
+                existing.setRating(request.getRating());
+                existing.setReviews(request.getReviews());
+                existing.setTag(request.getTag());
+                existing.setIsFeatured(request.getIsFeatured());
+                existing.setIsActive(request.getIsActive());
+                
+                if (request.getCategory() != null) {
+                    existing.setCategory(resolveCategory(request));
                 }
+                
                 applyDiscountPricing(existing);
                 return ResponseEntity.ok(productRepository.save(existing));
             })
@@ -338,6 +370,22 @@ public class AdminController {
 
         productReviewService.toggleReviewActive(reviewId, isActive);
         return ResponseEntity.ok().build();
+    }
+
+    private Brand resolveBrand(AdminProductRequest request) {
+        if (request.getBrand() == null || request.getBrand().getId() == null) {
+            return null;
+        }
+        return brandRepository.findById(request.getBrand().getId())
+            .orElseThrow(() -> new IllegalArgumentException("Brand không tồn tại: " + request.getBrand().getId()));
+    }
+
+    private Category resolveCategory(AdminProductRequest request) {
+        if (request.getCategory() == null || request.getCategory().getId() == null) {
+            throw new IllegalArgumentException("Category phải được chọn");
+        }
+        return categoryRepository.findById(request.getCategory().getId())
+            .orElseThrow(() -> new IllegalArgumentException("Category không tồn tại: " + request.getCategory().getId()));
     }
 
     private void applyDiscountPricing(Product product) {

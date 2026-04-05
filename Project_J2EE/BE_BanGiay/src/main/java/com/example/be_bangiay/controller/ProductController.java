@@ -41,4 +41,9 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByBrand(@PathVariable Long brandId) {
         return ResponseEntity.ok(productRepository.findByBrandIdAndIsActiveTrue(brandId));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
+        return ResponseEntity.ok(productRepository.findByNameContainingIgnoreCaseAndIsActiveTrue(keyword));
+    }
 }

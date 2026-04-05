@@ -8,6 +8,7 @@ function ProductReviewsSection({ productId, fallbackRating = 0, fallbackReviewCo
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [canReview, setCanReview] = useState(false);
+  const [unreviewedOrderIds, setUnreviewedOrderIds] = useState([]);
   const [hasReviewedOnProduct, setHasReviewedOnProduct] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [newContent, setNewContent] = useState('');
@@ -44,22 +45,30 @@ function ProductReviewsSection({ productId, fallbackRating = 0, fallbackReviewCo
       const token = localStorage.getItem('token');
       if (!token) {
         setCanReview(false);
+        setUnreviewedOrderIds([]);
         return;
       }
       const data = await reviewService.canReview(productId);
       setCanReview(!!data?.canReview);
+      setUnreviewedOrderIds(data?.unreviewedOrderIds || []);
     } catch {
       setCanReview(false);
+      setUnreviewedOrderIds([]);
     }
   };
 
   const submitReview = async () => {
     if (!newContent.trim()) return;
+    if (unreviewedOrderIds.length === 0) {
+      alert('Không tìm thấy đơn hàng để đánh giá');
+      return;
+    }
     try {
       setSubmitting(true);
       await reviewService.createReview(productId, {
         rating: newRating,
         content: newContent.trim(),
+        orderId: unreviewedOrderIds[0],
       });
       setNewContent('');
       setNewRating(5);
@@ -115,7 +124,7 @@ function ProductReviewsSection({ productId, fallbackRating = 0, fallbackReviewCo
         <span className="text-slate-500 text-sm">{avgRating} / 5 ({totalReview} đánh giá)</span>
       </div>
 
-      {canReview && !hasReviewedOnProduct && (
+      {canReview && unreviewedOrderIds.length > 0 && (
         <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
           <h4 className="font-medium mb-3">Viết đánh giá của bạn</h4>
           <Form layout="vertical">

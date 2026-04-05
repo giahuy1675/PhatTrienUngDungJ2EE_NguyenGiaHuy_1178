@@ -1,4 +1,4 @@
-import { Badge, Statistic } from 'antd';
+import { Badge, Card, Image, Statistic } from 'antd';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import productService from '../services/productService';
@@ -24,10 +24,16 @@ export default function ProductDetailPage() {
   const [alert, setAlert] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [variants, setVariants] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     fetchProductDetail();
   }, [id]);
+
+  const getRandomProducts = (products = [], count = 4) => {
+    const shuffled = [...products].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  };
 
   const fetchProductDetail = async () => {
     try {
@@ -114,6 +120,32 @@ export default function ProductDetailPage() {
       // Set default size
       const sizes = data.sizes ? JSON.parse(data.sizes) : [];
       if (sizes.length > 0) setSelectedSize(sizes[0]);
+
+      // Lấy ngẫu nhiên sản phẩm liên quan từ trang sản phẩm (loại trừ sản phẩm hiện tại)
+      try {
+        const productsData = await productService.getAllProducts();
+        let productsArray = [];
+
+        if (Array.isArray(productsData)) {
+          productsArray = productsData;
+        } else if (productsData && typeof productsData === 'object') {
+          if (Array.isArray(productsData.content)) {
+            productsArray = productsData.content;
+          } else if (Array.isArray(productsData.data)) {
+            productsArray = productsData.data;
+          } else {
+            productsArray = Object.values(productsData);
+          }
+        }
+
+        const filteredProducts = productsArray.filter(
+          (p) => p?.id !== data.id && p?.isActive !== false
+        );
+        setRelatedProducts(getRandomProducts(filteredProducts, 4));
+      } catch (relatedErr) {
+        console.error('Lỗi khi tải sản phẩm liên quan:', relatedErr);
+        setRelatedProducts([]);
+      }
     } catch (error) {
       console.error('Lỗi khi tải sản phẩm:', error);
     } finally {
@@ -340,17 +372,21 @@ export default function ProductDetailPage() {
                     src={img || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="85"%3E%3Crect fill="%23ddd" width="64" height="85"/%3E%3C/svg%3E'}
                     alt={`${product.name} ${index + 1}`}
                     className={`aspect-[64/85] object-cover object-top w-full cursor-pointer border-b-2 ${selectedImageIndex === index ? 'border-black' : 'border-transparent'}`}
+                    onMouseEnter={() => setSelectedImageIndex(index)}
                     onClick={() => setSelectedImageIndex(index)}
                   />
                 ))}
               </div>
               {/* Main Image */}
               <div className="flex-1">
-                <img
-                  src={allImages[selectedImageIndex] || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="548" height="712"%3E%3Crect fill="%23ddd" width="548" height="712"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
-                  alt={product.name}
-                  className="w-full aspect-[548/712] object-cover"
-                />
+                <Image.PreviewGroup items={allImages}>
+                  <Image
+                    src={allImages[selectedImageIndex] || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="548" height="712"%3E%3Crect fill="%23ddd" width="548" height="712"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="24"%3ENo Image%3C/text%3E%3C/svg%3E'}
+                    alt={product.name}
+                    preview={{ mask: 'Xem ảnh lớn' }}
+                    className="w-full aspect-[548/712] object-cover"
+                  />
+                </Image.PreviewGroup>
               </div>
             </div>
           </div>
@@ -606,6 +642,35 @@ export default function ProductDetailPage() {
             />
           </div>
         </div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-12">
+            <h3 className="text-2xl font-semibold text-slate-900 mb-6">Sản phẩm liên quan</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedProducts.map((item) => (
+                <Card
+                  key={item.id}
+                  hoverable
+                  style={{ width: '100%' }}
+                  cover={
+                    <img
+                      alt={item.name}
+                      src={item.image || 'https://via.placeholder.com/300x220?text=No+Image'}
+                      className="h-[220px] object-cover"
+                    />
+                  }
+                  onClick={() => navigate(`/product/${item.id}`)}
+                >
+                  <Card.Meta
+                    title={item.name}
+                    description={`${Number(item.price || 0).toLocaleString('vi-VN')}đ`}
+                  />
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

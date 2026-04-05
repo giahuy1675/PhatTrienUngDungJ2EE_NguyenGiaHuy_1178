@@ -39,6 +39,18 @@ public class ProductReviewService {
         );
     }
 
+    public List<Long> getUnreviewedOrderIds(Long productId, Long userId) {
+        // Nếu đã đánh giá sản phẩm này rồi thì không cho đánh giá nữa
+        if (productReviewRepository.existsByProductIdAndUserIdAndParentReviewIsNullAndIsActiveTrue(productId, userId)) {
+            return List.of();
+        }
+        return orderDetailRepository.findUnreviewedDeliveredOrderIds(
+                userId,
+                productId,
+                Order.OrderStatus.DELIVERED
+        );
+    }
+
     public List<ProductReviewResponse> getProductReviews(Long productId) {
         productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
@@ -95,12 +107,11 @@ public class ProductReviewService {
                 throw new BadRequestException("Đánh giá cần gắn với đơn hàng");
             }
 
-            if (productReviewRepository.existsByProductIdAndUserIdAndOrderIdAndParentReviewIsNullAndIsActiveTrue(
+            if (productReviewRepository.existsByProductIdAndUserIdAndParentReviewIsNullAndIsActiveTrue(
                     productId,
-                    userId,
-                    request.getOrderId()
+                    userId
             )) {
-                throw new BadRequestException("Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi");
+                throw new BadRequestException("Bạn đã đánh giá sản phẩm này rồi");
             }
 
             if (request.getRating() == null) {
