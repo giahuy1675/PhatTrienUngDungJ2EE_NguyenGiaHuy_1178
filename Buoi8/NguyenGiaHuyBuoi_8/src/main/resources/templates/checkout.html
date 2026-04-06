@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Product Store</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-2">Customer</span>
+                <a class="nav-link" th:href="@{/}">Home</a>
+                <a class="nav-link" th:href="@{/cart}">Cart</a>
+                <a class="nav-link" th:href="@{/orders}">Orders</a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1>Checkout</h1>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <h3>Order Summary</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cart}">
+                            <td th:text="${item.productName}"></td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.price, 1, 2)}"></span></td>
+                            <td th:text="${item.quantity}"></td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.total, 1, 2)}"></span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Grand Total:</strong></td>
+                            <td><strong>$<span th:text="${#numbers.formatDecimal(#aggregates.sum(cart.![total]), 1, 2)}"></span></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <form th:action="@{/checkout}" method="post">
+            <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+            <a href="/cart" class="btn btn-secondary btn-lg">Back to Cart</a>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

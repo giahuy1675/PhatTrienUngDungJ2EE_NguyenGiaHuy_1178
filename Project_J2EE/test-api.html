@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin API</title>
+</head>
+<body>
+    <h1>Test Admin Users API</h1>
+    <button onclick="testAPI()">Test GET /api/admin/users</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testAPI() {
+            const token = localStorage.getItem('token');
+            const resultEl = document.getElementById('result');
+            
+            if (!token) {
+                resultEl.textContent = 'ERROR: No token found in localStorage. Please login first.';
+                return;
+            }
+
+            try {
+                resultEl.textContent = 'Loading...';
+                const response = await fetch('http://localhost:8080/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                resultEl.textContent = `Status: ${response.status} ${response.statusText}\n\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultEl.textContent += 'Data:\n' + JSON.stringify(data, null, 2);
+                } else {
+                    const text = await response.text();
+                    resultEl.textContent += 'Error:\n' + text;
+                }
+            } catch (error) {
+                resultEl.textContent = 'ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
